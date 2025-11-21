@@ -1,0 +1,27 @@
+{
+  "name": "study-flow",
+  "version": "1.0.0",
+  "description": "Self Study & Burnout Manager",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^39.2.3",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.studyflow.app",
+    "productName": "Study Flow",
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}

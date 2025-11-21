@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Flow</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    #app { height: 100vh; display: flex; flex-direction: column; }
+    .card { background: linear-gradient(to bottom right, #1e293b, #0f172a); }
+    .timer-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .timer-svg {
+      width: clamp(120px, 25vh, 200px);
+      height: clamp(120px, 25vh, 200px);
+      transform: rotate(-90deg);
+    }
+    .timer-text {
+      position: absolute;
+      font-size: clamp(1.25rem, 4vh, 2.5rem);
+    }
+    /* Light mode styles */
+    body.light-mode { background: #f1f5f9; }
+    body.light-mode .card { background: linear-gradient(to bottom right, #ffffff, #f1f5f9); border: 1px solid #e2e8f0; }
+    body.light-mode .text-white { color: #1e293b; }
+    body.light-mode .text-slate-400 { color: #64748b; }
+    body.light-mode .text-slate-500 { color: #64748b; }
+    body.light-mode .bg-slate-700 { background: #e2e8f0; }
+    body.light-mode .bg-slate-700\/50 { background: #e2e8f050; }
+    body.light-mode .bg-slate-600 { background: #cbd5e1; }
+    body.light-mode input { color: #1e293b; }
+    body.light-mode input::placeholder { color: #94a3b8; }
+    body.light-mode select { background: #e2e8f0; color: #1e293b; }
+    .page { display: none; }
+    .page.active { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  </style>
+</head>
+<body class="bg-slate-900">
+  <div id="app" class="p-4">
+    <!-- Header -->
+    <header class="text-center mb-4 flex-shrink-0 relative">
+      <h1 class="text-2xl font-bold text-white mb-1">Study Flow</h1>
+      <p class="text-slate-400 text-sm">Manage your time & prevent burnout</p>
+      <button id="settings-btn" class="absolute right-0 top-0 p-2 text-slate-400 hover:text-white transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </button>
+    </header>
+
+    <!-- Home Page -->
+    <div id="home-page" class="page active">
+      <div class="grid grid-cols-2 gap-4 flex-1 min-h-0">
+      <!-- Left Column -->
+      <div class="flex flex-col gap-4 min-h-0">
+        <!-- Timer -->
+        <div class="card rounded-2xl p-4 shadow-xl flex-1 flex flex-col min-h-0">
+          <div class="flex justify-between items-center mb-2 flex-shrink-0">
+            <h2 id="timer-label" class="text-sm font-semibold text-white flex items-center gap-2">
+              <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+              Focus Session
+            </h2>
+            <select id="mode-select" class="bg-slate-700 text-white text-xs rounded-lg px-2 py-1 border-none outline-none cursor-pointer">
+              <option value="pomodoro">Pomodoro (25/5)</option>
+              <option value="deepwork">Deep Work (50/10)</option>
+              <option value="short">Short Sprint (15/3)</option>
+            </select>
+          </div>
+          
+          <div class="flex-1 flex items-center justify-center min-h-0 p-2">
+            <div class="timer-container">
+              <svg class="timer-svg" viewBox="0 0 192 192">
+                <circle cx="96" cy="96" r="88" stroke="#334155" stroke-width="8" fill="none" />
+                <circle id="progress-ring" cx="96" cy="96" r="88" stroke="#8b5cf6" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="553" stroke-dashoffset="0" class="transition-all duration-1000"/>
+              </svg>
+              <span id="timer-display" class="timer-text font-mono font-bold text-white">25:00</span>
+            </div>
+          </div>
+
+          <div class="flex justify-center gap-3 mt-2 flex-shrink-0">
+            <button id="start-btn" class="p-3 rounded-full bg-purple-500 hover:bg-purple-600 transition-colors">
+              <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <button id="reset-btn" class="p-3 rounded-full bg-slate-600 hover:bg-slate-500 transition-colors">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="card rounded-2xl p-4 shadow-xl flex-shrink-0">
+          <h2 class="text-sm font-semibold text-white mb-2">Today's Progress</h2>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-slate-700/50 rounded-xl p-3 text-center">
+              <p id="session-count" class="text-2xl font-bold text-purple-400">0</p>
+              <p class="text-slate-400 text-xs">Sessions</p>
+            </div>
+            <div class="bg-slate-700/50 rounded-xl p-3 text-center">
+              <p id="total-minutes" class="text-2xl font-bold text-cyan-400">0</p>
+              <p class="text-slate-400 text-xs">Minutes</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="flex flex-col gap-4 min-h-0">
+        <!-- Burnout Meter -->
+        <div class="card rounded-2xl p-4 shadow-xl flex-shrink-0">
+          <h2 class="text-sm font-semibold text-white mb-2 flex items-center gap-2">
+            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            Energy Level
+          </h2>
+          
+          <div class="flex items-center gap-3 mb-3">
+            <svg id="energy-icon" class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="1" y="6" width="18" height="12" rx="2" ry="2"/><line x1="23" y1="13" x2="23" y2="11"/><rect x="3" y="8" width="12" height="8" fill="currentColor" opacity="0.3"/></svg>
+            <div class="flex-1">
+              <div class="flex justify-between mb-1">
+                <span id="energy-status" class="font-medium text-green-500 text-sm">Fresh</span>
+                <span id="energy-percent" class="text-slate-400 text-xs">100%</span>
+              </div>
+              <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                <div id="energy-bar" class="h-full bg-green-500 transition-all duration-500" style="width: 100%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="burnout-warning" class="hidden bg-red-500/20 border border-red-500/50 rounded-lg p-2 mb-3">
+            <p class="text-red-200 text-xs">⚠️ You're at risk of burnout! Take a longer break.</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="doActivity('break')" class="bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 rounded-lg p-2 flex items-center justify-center gap-2 transition-colors text-xs">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+              Break
+            </button>
+            <button onclick="doActivity('exercise')" class="bg-green-500/20 text-green-400 hover:bg-green-500/30 rounded-lg p-2 flex items-center justify-center gap-2 transition-colors text-xs">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+              Exercise
+            </button>
+            <button onclick="doActivity('meditate')" class="bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 rounded-lg p-2 flex items-center justify-center gap-2 transition-colors text-xs">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/></svg>
+              Meditate
+            </button>
+            <button onclick="doActivity('snack')" class="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 rounded-lg p-2 flex items-center justify-center gap-2 transition-colors text-xs">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zm4-4h8l2 4H4l2-4z"/></svg>
+              Snack
+            </button>
+          </div>
+        </div>
+
+        <!-- Tasks -->
+        <div class="card rounded-2xl p-4 shadow-xl flex-1 flex flex-col min-h-0">
+          <h2 class="text-sm font-semibold text-white mb-2 flex items-center gap-2 flex-shrink-0">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Study Tasks
+          </h2>
+
+          <div class="flex gap-2 mb-3 flex-shrink-0">
+            <input id="task-input" type="text" placeholder="Add a task..." class="flex-1 bg-slate-700 text-white rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-purple-500">
+            <button onclick="addTask()" class="p-2 bg-purple-500 hover:bg-purple-600 rounded-lg transition-colors">
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            </button>
+          </div>
+
+          <div id="task-list" class="space-y-2 flex-1 overflow-y-auto min-h-0"></div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- Settings Page -->
+    <div id="settings-page" class="page">
+      <div class="card rounded-2xl p-6 shadow-xl flex-1 overflow-y-auto">
+        <div class="flex items-center mb-6">
+          <button id="back-btn" class="p-2 mr-3 text-slate-400 hover:text-white transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <h2 class="text-xl font-semibold text-white">Settings</h2>
+        </div>
+
+        <!-- Theme Toggle -->
+        <div class="mb-6">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            Appearance
+          </h3>
+          <div class="flex items-center justify-between bg-slate-700/50 rounded-lg p-4">
+            <div class="flex items-center gap-3">
+              <svg id="theme-icon" class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+              <span class="text-white text-sm">Dark Mode</span>
+            </div>
+            <button id="theme-toggle" class="relative w-12 h-6 bg-purple-500 rounded-full transition-colors">
+              <span id="theme-toggle-dot" class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full transition-transform"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Custom Alarm Sound -->
+        <div class="mb-6">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+            Alarm Sound
+          </h3>
+          <div class="bg-slate-700/50 rounded-lg p-4">
+            <div class="flex items-center justify-between mb-3">
+              <span id="alarm-name" class="text-slate-400 text-sm">Default alarm</span>
+              <button id="test-alarm" class="text-xs bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 px-3 py-1 rounded-lg transition-colors">Test</button>
+            </div>
+            <label class="flex items-center justify-center gap-2 bg-slate-600 hover:bg-slate-500 text-white text-sm rounded-lg p-3 cursor-pointer transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+              Upload Custom Sound
+              <input type="file" id="alarm-upload" accept="audio/*" class="hidden">
+            </label>
+            <p class="text-slate-500 text-xs mt-2 text-center">Supports MP3, WAV, OGG</p>
+            <button id="reset-alarm" class="w-full mt-3 text-xs text-slate-400 hover:text-white transition-colors">Reset to default</button>
+          </div>
+        </div>
+
+        <!-- About -->
+        <div>
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            About
+          </h3>
+          <div class="bg-slate-700/50 rounded-lg p-4">
+            <p class="text-white text-sm font-medium">Study Flow</p>
+            <p class="text-slate-400 text-xs">Version 1.0.0</p>
+            <p class="text-slate-500 text-xs mt-2">A simple app to manage your study time and prevent burnout.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== STATE =====
+    const MODES = {
+      pomodoro: { work: 25 * 60, break: 5 * 60 },
+      deepwork: { work: 50 * 60, break: 10 * 60 },
+      short: { work: 15 * 60, break: 3 * 60 }
+    };
+
+    let state = {
+      mode: 'pomodoro',
+      time: MODES.pomodoro.work,
+      isRunning: false,
+      isBreak: false,
+      sessions: 0,
+      totalMinutes: 0,
+      energy: 100,
+      tasks: [],
+      interval: null,
+      currentPage: 'home',
+      darkMode: true,
+      customAlarm: null,
+      customAlarmName: ''
+    };
+
+    // ===== DOM ELEMENTS =====
+    const timerDisplay = document.getElementById('timer-display');
+    const timerLabel = document.getElementById('timer-label');
+    const progressRing = document.getElementById('progress-ring');
+    const startBtn = document.getElementById('start-btn');
+    const modeSelect = document.getElementById('mode-select');
+    const sessionCount = document.getElementById('session-count');
+    const totalMinutes = document.getElementById('total-minutes');
+    const energyBar = document.getElementById('energy-bar');
+    const energyStatus = document.getElementById('energy-status');
+    const energyPercent = document.getElementById('energy-percent');
+    const energyIcon = document.getElementById('energy-icon');
+    const burnoutWarning = document.getElementById('burnout-warning');
+    const taskList = document.getElementById('task-list');
+    const taskInput = document.getElementById('task-input');
+
+    // ===== TIMER FUNCTIONS =====
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function updateDisplay() {
+      timerDisplay.textContent = formatTime(state.time);
+      const total = state.isBreak ? MODES[state.mode].break : MODES[state.mode].work;
+      const progress = (state.time / total) * 553;
+      progressRing.style.strokeDashoffset = 553 - progress;
+      progressRing.style.stroke = state.isBreak ? '#f59e0b' : '#8b5cf6';
+      timerLabel.innerHTML = state.isBreak 
+        ? '<svg class="w-4 h-4 text-amber-400 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>Break Time'
+        : '<svg class="w-4 h-4 text-purple-400 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>Focus Session';
+      
+      sessionCount.textContent = state.sessions;
+      totalMinutes.textContent = state.totalMinutes;
+    }
+
+    function tick() {
+      if (state.time > 0) {
+        state.time--;
+        updateDisplay();
+      } else {
+        clearInterval(state.interval);
+        state.isRunning = false;
+        updateStartButton();
+        
+        if (!state.isBreak) {
+          state.sessions++;
+          state.totalMinutes += MODES[state.mode].work / 60;
+          state.energy = Math.max(0, state.energy - 15);
+          updateEnergy();
+          playAlarm();
+          new Notification('Session Complete!', { body: 'Time for a break!' });
+        }
+        
+        state.isBreak = !state.isBreak;
+        state.time = state.isBreak ? MODES[state.mode].break : MODES[state.mode].work;
+        updateDisplay();
+      }
+    }
+
+    function toggleTimer() {
+      if (state.isRunning) {
+        clearInterval(state.interval);
+        state.isRunning = false;
+      } else {
+        state.interval = setInterval(tick, 1000);
+        state.isRunning = true;
+      }
+      updateStartButton();
+    }
+
+    function updateStartButton() {
+      startBtn.innerHTML = state.isRunning 
+        ? '<svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+        : '<svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+      startBtn.className = `p-3 rounded-full transition-colors ${state.isRunning ? 'bg-amber-500 hover:bg-amber-600' : 'bg-purple-500 hover:bg-purple-600'}`;
+    }
+
+    function resetTimer() {
+      clearInterval(state.interval);
+      state.isRunning = false;
+      state.isBreak = false;
+      state.time = MODES[state.mode].work;
+      updateDisplay();
+      updateStartButton();
+    }
+
+    function changeMode() {
+      state.mode = modeSelect.value;
+      resetTimer();
+    }
+
+    // ===== ENERGY FUNCTIONS =====
+    function updateEnergy() {
+      energyBar.style.width = state.energy + '%';
+      energyPercent.textContent = state.energy + '%';
+      
+      let status, color;
+      if (state.energy >= 70) { status = 'Fresh'; color = 'green'; }
+      else if (state.energy >= 40) { status = 'Good'; color = 'blue'; }
+      else if (state.energy >= 20) { status = 'Tired'; color = 'yellow'; }
+      else { status = 'Burnout Risk!'; color = 'red'; }
+      
+      energyStatus.textContent = status;
+      energyStatus.className = `font-medium text-${color}-500 text-sm`;
+      energyBar.className = `h-full transition-all duration-500 bg-${color}-500`;
+      
+      burnoutWarning.classList.toggle('hidden', state.energy >= 20);
+    }
+
+    function doActivity(type) {
+      const boosts = { break: 10, exercise: 15, meditate: 20, snack: 5 };
+      state.energy = Math.min(100, state.energy + (boosts[type] || 0));
+      updateEnergy();
+    }
+
+    // ===== TASK FUNCTIONS =====
+    function renderTasks() {
+      if (state.tasks.length === 0) {
+        taskList.innerHTML = '<p class="text-slate-500 text-xs text-center py-4">No tasks yet. Add one above!</p>';
+        return;
+      }
+      
+      taskList.innerHTML = state.tasks.map(task => `
+        <div class="flex items-center gap-2 p-2 rounded-lg ${task.done ? 'bg-slate-700/50' : 'bg-slate-700'}">
+          <button onclick="toggleTask(${task.id})" class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${task.done ? 'bg-emerald-500 border-emerald-500' : 'border-slate-500'}">
+            ${task.done ? '<svg class="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>' : ''}
+          </button>
+          <span class="flex-1 text-xs ${task.done ? 'text-slate-500 line-through' : 'text-white'}">${task.text}</span>
+          <button onclick="deleteTask(${task.id})" class="p-1 hover:bg-slate-600 rounded flex-shrink-0">
+            <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function addTask() {
+      const text = taskInput.value.trim();
+      if (text) {
+        state.tasks.push({ id: Date.now(), text, done: false });
+        taskInput.value = '';
+        renderTasks();
+      }
+    }
+
+    function toggleTask(id) {
+      const task = state.tasks.find(t => t.id === id);
+      if (task) task.done = !task.done;
+      renderTasks();
+    }
+
+    function deleteTask(id) {
+      state.tasks = state.tasks.filter(t => t.id !== id);
+      renderTasks();
+    }
+
+    // ===== EVENT LISTENERS =====
+    startBtn.addEventListener('click', toggleTimer);
+    document.getElementById('reset-btn').addEventListener('click', resetTimer);
+    modeSelect.addEventListener('change', changeMode);
+    taskInput.addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+
+    // Request notification permission
+    if (Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    // ===== PAGE NAVIGATION =====
+    function showPage(page) {
+      state.currentPage = page;
+      document.getElementById('home-page').classList.toggle('active', page === 'home');
+      document.getElementById('settings-page').classList.toggle('active', page === 'settings');
+    }
+
+    document.getElementById('settings-btn').addEventListener('click', () => showPage('settings'));
+    document.getElementById('back-btn').addEventListener('click', () => showPage('home'));
+
+    // ===== THEME TOGGLE =====
+    function updateTheme() {
+      document.body.classList.toggle('light-mode', !state.darkMode);
+      const toggle = document.getElementById('theme-toggle');
+      const dot = document.getElementById('theme-toggle-dot');
+      const icon = document.getElementById('theme-icon');
+      
+      if (state.darkMode) {
+        toggle.classList.remove('bg-slate-500');
+        toggle.classList.add('bg-purple-500');
+        dot.style.transform = 'translateX(0)';
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>';
+      } else {
+        toggle.classList.remove('bg-purple-500');
+        toggle.classList.add('bg-slate-500');
+        dot.style.transform = 'translateX(-24px)';
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>';
+      }
+    }
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      state.darkMode = !state.darkMode;
+      updateTheme();
+    });
+
+    // ===== CUSTOM ALARM =====
+    const defaultAlarm = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleAMBS67R7pNWBgdPweTlnGASBVvP8emQPwAAYtn39H8iABNn3/jnaggAKHXl+uVcCAA6g+r750UIAE2Q7/viMAAAbJ345FkAAIKp++BXAACcu//bPwAAsc7/1jAAAMTb/88fAADV6v/IEgAA4vb/wgAAAO////8AAAAAAA==');
+    
+    function playAlarm() {
+      const alarm = state.customAlarm || defaultAlarm;
+      alarm.currentTime = 0;
+      alarm.play().catch(e => console.log('Audio play failed:', e));
+    }
+
+    document.getElementById('alarm-upload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const url = URL.createObjectURL(file);
+        state.customAlarm = new Audio(url);
+        state.customAlarmName = file.name;
+        document.getElementById('alarm-name').textContent = file.name;
+      }
+    });
+
+    document.getElementById('test-alarm').addEventListener('click', playAlarm);
+
+    document.getElementById('reset-alarm').addEventListener('click', () => {
+      if (state.customAlarm) {
+        URL.revokeObjectURL(state.customAlarm.src);
+      }
+      state.customAlarm = null;
+      state.customAlarmName = '';
+      document.getElementById('alarm-name').textContent = 'Default alarm';
+    });
+
+    // Initial render
+    updateDisplay();
+    updateEnergy();
+    renderTasks();
+    updateTheme();
+  </script>
+</body>
+</html>
