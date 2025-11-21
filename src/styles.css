@@ -1,0 +1,162 @@
+/* ===== BASE STYLES ===== */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+body { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; }
+
+#app { height: 100vh; display: flex; flex-direction: column; }
+
+/* ===== CARDS ===== */
+.card {
+  background: linear-gradient(to bottom right, #1e293b, #0f172a);
+  border: 1px solid #334155;
+}
+
+/* ===== TIMER ===== */
+.timer-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timer-svg {
+  width: clamp(120px, 25vh, 200px);
+  height: clamp(120px, 25vh, 200px);
+  transform: rotate(-90deg);
+}
+
+.timer-text {
+  position: absolute;
+  font-size: clamp(1.25rem, 4vh, 2.5rem);
+}
+
+/* ===== PAGES ===== */
+.page {
+  display: none;
+}
+
+.page.active {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ===== LIGHT MODE ===== */
+body.light-mode {
+  background: #f1f5f9;
+}
+
+body.light-mode .card {
+  background: linear-gradient(to bottom right, #ffffff, #f1f5f9);
+  border: 1px solid #e2e8f0;
+}
+
+body.light-mode .text-white { color: #1e293b; }
+body.light-mode .text-slate-400 { color: #64748b; }
+body.light-mode .text-slate-500 { color: #64748b; }
+body.light-mode .bg-slate-700 { background: #e2e8f0; }
+body.light-mode .bg-slate-700\/50 { background: rgba(226, 232, 240, 0.5); }
+body.light-mode .bg-slate-600 { background: #cbd5e1; }
+body.light-mode input { color: #1e293b; }
+body.light-mode input::placeholder { color: #94a3b8; }
+body.light-mode select { background: #e2e8f0; color: #1e293b; }
+
+/* ===== TOGGLE SWITCHES ===== */
+.toggle-switch {
+  position: relative;
+  width: 48px;
+  height: 24px;
+  border-radius: 9999px;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.toggle-dot {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 9999px;
+  transition: transform 0.2s;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e293b;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* ===== RANGE SLIDER ===== */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  background: #475569;
+  border-radius: 4px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #8b5cf6;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #8b5cf6;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+/* ===== CHARTS ===== */
+.chart-bar {
+  transition: height 0.3s ease;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

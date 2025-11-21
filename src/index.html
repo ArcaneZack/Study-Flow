@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Flow</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-900">
+  <div id="app" class="p-4">
+    <!-- Header -->
+    <header class="text-center mb-4 flex-shrink-0 relative">
+      <h1 class="text-2xl font-bold text-white mb-1">Study Flow</h1>
+      <p id="quote-display" class="text-slate-400 text-sm italic"></p>
+      <!-- Nav buttons -->
+      <div class="absolute right-0 top-0 flex gap-2">
+        <button id="stats-btn" class="p-2 text-slate-400 hover:text-white transition-colors" title="Statistics">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </button>
+        <button id="settings-btn" class="p-2 text-slate-400 hover:text-white transition-colors" title="Settings">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ==================== HOME PAGE ==================== -->
+    <div id="home-page" class="page active">
+      <div class="grid grid-cols-2 gap-4 flex-1 min-h-0">
+        <!-- Left Column -->
+        <div class="flex flex-col gap-4 min-h-0">
+          <!-- Timer Card -->
+          <div class="card rounded-2xl p-4 shadow-xl flex-1 flex flex-col min-h-0">
+            <div class="flex justify-between items-center mb-2 flex-shrink-0">
+              <h2 id="timer-label" class="text-sm font-semibold text-white flex items-center gap-2">
+                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Focus Session
+              </h2>
+              <select id="mode-select" class="bg-slate-700 text-white text-xs rounded-lg px-2 py-1 border-none outline-none cursor-pointer"></select>
+            </div>
+            
+            <!-- Break Tip -->
+            <div id="break-suggestion" class="hidden bg-amber-500/20 border border-amber-500/50 rounded-lg p-2 mb-2 text-center">
+              <p class="text-amber-200 text-xs" id="break-tip"></p>
+            </div>
+            
+            <!-- Timer Display -->
+            <div class="flex-1 flex items-center justify-center min-h-0">
+              <div class="timer-container">
+                <svg class="timer-svg" viewBox="0 0 192 192">
+                  <circle cx="96" cy="96" r="88" stroke="#334155" stroke-width="8" fill="none"/>
+                  <circle id="progress-ring" cx="96" cy="96" r="88" stroke="#8b5cf6" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="553" stroke-dashoffset="0"/>
+                </svg>
+                <span id="timer-display" class="timer-text font-mono font-bold text-white">25:00</span>
+              </div>
+            </div>
+
+            <!-- Timer Controls -->
+            <div class="flex justify-center gap-3 mt-2 flex-shrink-0">
+              <button id="start-btn" class="p-3 rounded-full bg-purple-500 hover:bg-purple-600 transition-colors">
+                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+              <button id="reset-btn" class="p-3 rounded-full bg-slate-600 hover:bg-slate-500 transition-colors">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              </button>
+            </div>
+            <p class="text-slate-500 text-xs text-center mt-2">Space: play/pause • R: reset • T: stats</p>
+          </div>
+
+          <!-- Stats Card -->
+          <div class="card rounded-2xl p-4 shadow-xl flex-shrink-0">
+            <div class="flex justify-between items-center mb-2">
+              <h2 class="text-sm font-semibold text-white">Today's Progress</h2>
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-400">Goal:</span>
+                <input type="number" id="session-goal" min="1" max="20" value="5" class="w-12 bg-slate-700 text-white text-xs rounded px-2 py-1 text-center outline-none">
+              </div>
+            </div>
+            <div class="h-2 bg-slate-700 rounded-full overflow-hidden mb-3">
+              <div id="goal-progress" class="h-full bg-purple-500 transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-slate-700/50 rounded-xl p-3 text-center">
+                <p id="session-count" class="text-2xl font-bold text-purple-400">0</p>
+                <p class="text-slate-400 text-xs">Sessions</p>
+              </div>
+              <div class="bg-slate-700/50 rounded-xl p-3 text-center">
+                <p id="total-minutes" class="text-2xl font-bold text-cyan-400">0</p>
+                <p class="text-slate-400 text-xs">Minutes</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="flex flex-col gap-4 min-h-0">
+          <!-- Energy Card -->
+          <div class="card rounded-2xl p-4 shadow-xl flex-shrink-0">
+            <h2 class="text-sm font-semibold text-white mb-2 flex items-center gap-2">
+              <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Energy Level
+            </h2>
+            <div class="flex items-center gap-3 mb-3">
+              <div class="flex-1">
+                <div class="flex justify-between mb-1">
+                  <span id="energy-status" class="font-medium text-green-500 text-sm">Fresh</span>
+                  <span id="energy-percent" class="text-slate-400 text-xs">100%</span>
+                </div>
+                <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                  <div id="energy-bar" class="h-full bg-green-500 transition-all duration-500" style="width: 100%"></div>
+                </div>
+              </div>
+            </div>
+            <div id="burnout-warning" class="hidden bg-red-500/20 border border-red-500/50 rounded-lg p-2 mb-3">
+              <p class="text-red-200 text-xs">⚠️ Burnout risk! Take a longer break.</p>
+            </div>
+            <div class="grid grid-cols-4 gap-2">
+              <button onclick="doActivity('break')" class="bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 rounded-lg p-2 text-xs transition-colors">Break</button>
+              <button onclick="doActivity('exercise')" class="bg-green-500/20 text-green-400 hover:bg-green-500/30 rounded-lg p-2 text-xs transition-colors">Exercise</button>
+              <button onclick="doActivity('meditate')" class="bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 rounded-lg p-2 text-xs transition-colors">Meditate</button>
+              <button onclick="doActivity('snack')" class="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 rounded-lg p-2 text-xs transition-colors">Snack</button>
+            </div>
+          </div>
+
+          <!-- Tasks Card -->
+          <div class="card rounded-2xl p-4 shadow-xl flex-1 flex flex-col min-h-0">
+            <h2 class="text-sm font-semibold text-white mb-2 flex items-center gap-2 flex-shrink-0">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Study Tasks
+            </h2>
+            <div class="flex gap-2 mb-3 flex-shrink-0">
+              <input id="task-input" type="text" placeholder="Add a task..." class="flex-1 bg-slate-700 text-white rounded-lg px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-purple-500">
+              <select id="task-priority" class="bg-slate-700 text-white text-xs rounded-lg px-2 py-1 outline-none">
+                <option value="low">Low</option>
+                <option value="medium" selected>Med</option>
+                <option value="high">High</option>
+              </select>
+              <select id="task-category" class="category-select bg-slate-700 text-white text-xs rounded-lg px-2 py-1 outline-none"></select>
+              <button id="add-task-btn" class="p-2 bg-purple-500 hover:bg-purple-600 rounded-lg transition-colors">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              </button>
+            </div>
+            <div id="task-list" class="space-y-2 flex-1 overflow-y-auto min-h-0"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== STATS PAGE ==================== -->
+    <div id="stats-page" class="page">
+      <div class="card rounded-2xl p-6 shadow-xl flex-1 overflow-y-auto">
+        <div class="flex items-center mb-6">
+          <button id="stats-back-btn" class="p-2 mr-3 text-slate-400 hover:text-white transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <h2 class="text-xl font-semibold text-white">Weekly Statistics</h2>
+        </div>
+
+        <!-- Weekly Chart -->
+        <div class="bg-slate-700/50 rounded-lg p-4 mb-6">
+          <h3 class="text-sm font-semibold text-white mb-4">Last 7 Days</h3>
+          <div id="stats-chart"></div>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-slate-700/50 rounded-xl p-4 text-center">
+            <p id="weekly-sessions" class="text-3xl font-bold text-purple-400">0</p>
+            <p class="text-slate-400 text-sm">Total Sessions</p>
+          </div>
+          <div class="bg-slate-700/50 rounded-xl p-4 text-center">
+            <p id="weekly-minutes" class="text-3xl font-bold text-cyan-400">0</p>
+            <p class="text-slate-400 text-sm">Total Minutes</p>
+          </div>
+          <div class="bg-slate-700/50 rounded-xl p-4 text-center">
+            <p id="avg-session-length" class="text-3xl font-bold text-green-400">0</p>
+            <p class="text-slate-400 text-sm">Avg Session</p>
+          </div>
+          <div class="bg-slate-700/50 rounded-xl p-4 text-center">
+            <p id="best-day" class="text-2xl font-bold text-amber-400">-</p>
+            <p class="text-slate-400 text-sm">Best Day</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SETTINGS PAGE ==================== -->
+    <div id="settings-page" class="page">
+      <div class="card rounded-2xl p-6 shadow-xl flex-1 overflow-y-auto">
+        <div class="flex items-center mb-6">
+          <button id="back-btn" class="p-2 mr-3 text-slate-400 hover:text-white transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <h2 class="text-xl font-semibold text-white">Settings</h2>
+        </div>
+
+        <!-- Timer Settings -->
+        <div class="mb-6">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Timer Settings
+          </h3>
+          <div class="bg-slate-700/50 rounded-lg p-4 space-y-4">
+            <!-- Custom Timer -->
+            <div>
+              <p class="text-slate-400 text-xs mb-2">Custom Timer Length</p>
+              <div class="flex gap-4">
+                <div class="flex-1">
+                  <label class="text-slate-500 text-xs">Work (min)</label>
+                  <input type="number" id="custom-work-time" min="1" max="120" value="25" class="w-full bg-slate-600 text-white text-sm rounded px-3 py-2 outline-none">
+                </div>
+                <div class="flex-1">
+                  <label class="text-slate-500 text-xs">Break (min)</label>
+                  <input type="number" id="custom-break-time" min="1" max="60" value="5" class="w-full bg-slate-600 text-white text-sm rounded px-3 py-2 outline-none">
+                </div>
+              </div>
+            </div>
+            <!-- Auto-start Breaks -->
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white text-sm">Auto-start Breaks</p>
+                <p class="text-slate-500 text-xs">Automatically start break timer after focus</p>
+              </div>
+              <button id="auto-start-toggle" class="toggle-switch bg-slate-500">
+                <span id="auto-start-dot" class="toggle-dot" style="transform: translateX(-24px)"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Appearance -->
+        <div class="mb-6">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            Appearance
+          </h3>
+          <div class="flex items-center justify-between bg-slate-700/50 rounded-lg p-4">
+            <div class="flex items-center gap-3">
+              <svg id="theme-icon" class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+              <span class="text-white text-sm">Dark Mode</span>
+            </div>
+            <button id="theme-toggle" class="toggle-switch bg-purple-500">
+              <span id="theme-toggle-dot" class="toggle-dot"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Sound Settings -->
+        <div class="mb-6">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+            Sound
+          </h3>
+          <div class="bg-slate-700/50 rounded-lg p-4 space-y-4">
+            <div class="flex items-center gap-3">
+              <span class="text-slate-400 text-sm">Volume</span>
+              <input type="range" id="volume-slider" min="0" max="100" value="70" class="flex-1">
+              <span id="volume-display" class="text-slate-400 text-xs w-10">70%</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span id="alarm-name" class="text-slate-400 text-sm">Default alarm</span>
+              <button id="test-alarm" class="text-xs bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 px-3 py-1 rounded-lg">Test</button>
+            </div>
+            <label class="flex items-center justify-center gap-2 bg-slate-600 hover:bg-slate-500 text-white text-sm rounded-lg p-3 cursor-pointer transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+              Upload Custom Sound
+              <input type="file" id="alarm-upload" accept="audio/*" class="hidden">
+            </label>
+            <button id="reset-alarm" class="w-full text-xs text-slate-400 hover:text-white">Reset to default</button>
+          </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="mb-6">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+            Task Categories
+          </h3>
+          <div class="bg-slate-700/50 rounded-lg p-4">
+            <div class="flex gap-2 mb-3">
+              <input type="text" id="new-category-name" placeholder="Category name..." class="flex-1 bg-slate-600 text-white text-sm rounded px-3 py-2 outline-none">
+              <input type="color" id="new-category-color" value="#8b5cf6" class="w-10 h-9 rounded cursor-pointer">
+              <button id="add-category-btn" class="px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded transition-colors">Add</button>
+            </div>
+            <p class="text-slate-500 text-xs">Default categories: General, Math, Science, History, Language, Art</p>
+          </div>
+        </div>
+
+        <!-- Export -->
+        <div class="mb-6">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Data
+          </h3>
+          <button id="export-btn" class="w-full bg-green-500/20 text-green-400 hover:bg-green-500/30 rounded-lg p-3 text-sm transition-colors">
+            Export Tasks & Stats
+          </button>
+        </div>
+
+        <!-- Shortcuts -->
+        <div class="mb-6">
+          <h3 class="text-sm font-semibold text-white mb-3">Keyboard Shortcuts</h3>
+          <div class="bg-slate-700/50 rounded-lg p-4 grid grid-cols-2 gap-2 text-sm">
+            <span class="text-slate-400">Play/Pause</span><span class="text-white text-right">Space</span>
+            <span class="text-slate-400">Reset</span><span class="text-white text-right">R</span>
+            <span class="text-slate-400">Statistics</span><span class="text-white text-right">T</span>
+            <span class="text-slate-400">Settings</span><span class="text-white text-right">S</span>
+            <span class="text-slate-400">Back</span><span class="text-white text-right">Esc</span>
+          </div>
+        </div>
+
+        <!-- About -->
+        <div class="text-center text-slate-500 text-xs">
+          <p>Study Flow v1.2.0</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== NOTE MODAL ==================== -->
+    <div id="note-modal" class="modal-overlay hidden">
+      <div class="card rounded-2xl p-6 shadow-xl w-80">
+        <h3 class="text-white font-semibold mb-3">Session Complete! 🎉</h3>
+        <p class="text-slate-400 text-sm mb-3">What did you accomplish?</p>
+        <textarea id="session-note" class="w-full bg-slate-700 text-white rounded-lg px-3 py-2 text-sm outline-none resize-none" rows="3" placeholder="e.g., Finished chapter 3..."></textarea>
+        <div class="flex gap-2 mt-4">
+          <button id="skip-note-btn" class="flex-1 bg-slate-600 hover:bg-slate-500 text-white text-sm rounded-lg py-2">Skip</button>
+          <button id="save-note-btn" class="flex-1 bg-purple-500 hover:bg-purple-600 text-white text-sm rounded-lg py-2">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load all JS files -->
+  <script src="js/constants.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/timer.js"></script>
+  <script src="js/tasks.js"></script>
+  <script src="js/energy.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/stats.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
