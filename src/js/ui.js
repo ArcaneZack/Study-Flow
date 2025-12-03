@@ -97,6 +97,51 @@ function updateEnergyDisplay() {
   elements.burnoutWarning.classList.toggle('hidden', !isBurnoutRisk());
 }
 
+function renderEnergyButtons() {
+  const container = document.getElementById('energy-buttons');
+  if (!container) return;
+  
+  let html = '';
+  
+  // Custom activities only
+  state.customActivities.forEach(activity => {
+    html += `
+      <button onclick="doActivity('${activity.id}')" class="rounded-lg p-2 text-xs transition-colors relative group" style="background-color: ${activity.color}30; color: ${activity.color};">
+        ${activity.name}
+        <span class="absolute -top-1 -right-1 hidden group-hover:flex bg-red-500 text-white rounded-full w-4 h-4 text-xs items-center justify-center cursor-pointer" onclick="event.stopPropagation(); deleteCustomActivity('${activity.id}')">×</span>
+      </button>
+    `;
+  });
+  
+  // Show message if no activities
+  if (!html) {
+    html = '<p class="text-slate-500 text-xs col-span-4 text-center py-2">No energy activities. Add one below!</p>';
+  }
+  
+  container.innerHTML = html;
+}
+
+function renderCustomActivitiesList() {
+  const list = document.getElementById('custom-activities-list');
+  if (!list) return;
+  
+  if (state.customActivities.length === 0) {
+    list.innerHTML = '<p class="text-slate-500 text-xs text-center py-2">No custom activities yet</p>';
+    return;
+  }
+  
+  list.innerHTML = state.customActivities.map(activity => `
+    <div class="flex items-center justify-between bg-slate-700 rounded-lg p-2">
+      <div class="flex items-center gap-2">
+        <div class="w-4 h-4 rounded" style="background-color: ${activity.color};"></div>
+        <span class="text-white text-sm">${activity.name}</span>
+        <span class="text-slate-400 text-xs">+${activity.boost}%</span>
+      </div>
+      <button onclick="deleteCustomActivity('${activity.id}')" class="text-red-400 hover:text-red-300 text-xs">Delete</button>
+    </div>
+  `).join('');
+}
+
 // ===== TASKS DISPLAY =====
 
 function renderTasks() {

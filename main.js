@@ -8,13 +8,12 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true
     },
-    icon: path.join(__dirname, 'icon.png') // optional
+    icon: path.join(__dirname, 'build/icon.png')
   });
 
-  // Load the app's HTML from the `src` folder
-  win.loadFile(path.join(__dirname, 'src', 'index.html'));
+  win.loadFile('src/index.html');
   
-  // Remove menu bar (optional - cleaner look)
+  // Remove menu bar for cleaner look
   win.setMenuBarVisibility(false);
 }
 

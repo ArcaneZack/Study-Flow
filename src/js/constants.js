@@ -46,10 +46,7 @@ const PRIORITY_COLORS = {
 };
 
 const ENERGY_BOOSTS = {
-  break: 10,
-  exercise: 15,
-  meditate: 20,
-  snack: 5
+  // Default activities removed - users create their own
 };
 
 const DEFAULT_SETTINGS = {

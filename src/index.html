@@ -114,11 +114,26 @@
             <div id="burnout-warning" class="hidden bg-red-500/20 border border-red-500/50 rounded-lg p-2 mb-3">
               <p class="text-red-200 text-xs">⚠️ Burnout risk! Take a longer break.</p>
             </div>
-            <div class="grid grid-cols-4 gap-2">
-              <button onclick="doActivity('break')" class="bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 rounded-lg p-2 text-xs transition-colors">Break</button>
-              <button onclick="doActivity('exercise')" class="bg-green-500/20 text-green-400 hover:bg-green-500/30 rounded-lg p-2 text-xs transition-colors">Exercise</button>
-              <button onclick="doActivity('meditate')" class="bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 rounded-lg p-2 text-xs transition-colors">Meditate</button>
-              <button onclick="doActivity('snack')" class="bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 rounded-lg p-2 text-xs transition-colors">Snack</button>
+            
+            <!-- Energy Activities -->
+            <div id="energy-buttons" class="grid grid-cols-2 gap-2 mb-3"></div>
+            
+            <!-- Add Custom Activity -->
+            <div class="border-t border-slate-700 pt-3">
+              <p class="text-slate-400 text-xs mb-2">Add Recovery Activity</p>
+              <div class="flex gap-2 mb-2">
+                <input type="text" id="new-activity-name" placeholder="Name..." class="flex-1 bg-slate-700 text-white text-xs rounded px-2 py-1 outline-none">
+                <div class="flex items-center gap-1 bg-slate-700 rounded px-2">
+                  <span class="text-slate-400 text-xs">+</span>
+                  <input type="number" id="new-activity-boost" min="1" max="50" value="10" class="w-10 bg-transparent text-white text-xs outline-none">
+                  <span class="text-slate-400 text-xs">%</span>
+                </div>
+                <input type="color" id="new-activity-color" value="#3b82f6" class="w-8 h-7 rounded cursor-pointer">
+                <button id="add-activity-btn" class="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded transition-colors">Add</button>
+              </div>
+              
+              <!-- Activities List -->
+              <div id="custom-activities-list" class="space-y-1 max-h-32 overflow-y-auto"></div>
             </div>
           </div>
 

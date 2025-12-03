@@ -12,10 +12,13 @@ function getEnergyStatus() {
   return { status: 'Burnout Risk!', color: 'red' };
 }
 
-function doActivity(type) {
-  const boost = ENERGY_BOOSTS[type] || 0;
-  state.energy = Math.min(100, state.energy + boost);
-  updateEnergyDisplay();
+function doActivity(activityKey) {
+  // Check if it's a custom activity
+  const customActivity = state.customActivities.find(a => a.id === activityKey);
+  if (customActivity) {
+    state.energy = Math.min(100, state.energy + customActivity.boost);
+    updateEnergyDisplay();
+  }
 }
 
 function drainEnergy(amount = 0.5) {
@@ -30,4 +33,26 @@ function resetEnergy() {
 
 function isBurnoutRisk() {
   return state.energy < 20;
+}
+
+// ===== CUSTOM ACTIVITIES =====
+
+function addCustomActivity(name, boost, color) {
+  const id = 'custom-' + Date.now();
+  state.customActivities.push({
+    id: id,
+    name: name.trim(),
+    boost: Math.max(1, Math.min(50, boost)),
+    color: color || '#3b82f6'
+  });
+  saveData();
+  renderEnergyButtons();
+  renderCustomActivitiesList();
+}
+
+function deleteCustomActivity(id) {
+  state.customActivities = state.customActivities.filter(a => a.id !== id);
+  saveData();
+  renderEnergyButtons();
+  renderCustomActivitiesList();
 }

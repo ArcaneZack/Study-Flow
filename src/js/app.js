@@ -29,6 +29,7 @@ function initApp() {
   applyTheme();
   updateSettingsUI();
   showRandomQuote();
+  renderEnergyButtons();
 }
 
 function setupEventListeners() {
@@ -125,6 +126,19 @@ function setupEventListeners() {
     if (name) {
       addCategory(name, color);
       document.getElementById('new-category-name').value = '';
+    }
+  });
+  
+  // Custom activity management (on home page)
+  document.getElementById('add-activity-btn')?.addEventListener('click', () => {
+    const name = document.getElementById('new-activity-name')?.value;
+    const boost = parseInt(document.getElementById('new-activity-boost')?.value) || 10;
+    const color = document.getElementById('new-activity-color')?.value || '#3b82f6';
+    if (name) {
+      addCustomActivity(name, boost, color);
+      document.getElementById('new-activity-name').value = '';
+      document.getElementById('new-activity-boost').value = '10';
+      document.getElementById('new-activity-color').value = '#3b82f6';
     }
   });
   

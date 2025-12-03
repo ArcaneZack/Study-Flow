@@ -29,6 +29,7 @@ const state = {
   autoStartBreaks: DEFAULT_SETTINGS.autoStartBreaks,
   customWorkTime: DEFAULT_SETTINGS.customWorkTime,
   customBreakTime: DEFAULT_SETTINGS.customBreakTime,
+  customActivities: [], // User-defined recovery activities
 
   // Audio
   customAlarm: null,
@@ -61,6 +62,7 @@ function saveData() {
     autoStartBreaks: state.autoStartBreaks,
     customWorkTime: state.customWorkTime,
     customBreakTime: state.customBreakTime,
+    customActivities: state.customActivities,
 
     // Meta
     lastDate: new Date().toDateString()
@@ -102,6 +104,7 @@ function loadData() {
   state.autoStartBreaks = data.autoStartBreaks || DEFAULT_SETTINGS.autoStartBreaks;
   state.customWorkTime = data.customWorkTime || DEFAULT_SETTINGS.customWorkTime;
   state.customBreakTime = data.customBreakTime || DEFAULT_SETTINGS.customBreakTime;
+  state.customActivities = data.customActivities || [];
 
   // Update custom mode with saved times
   DEFAULT_MODES.custom.work = state.customWorkTime * 60;
