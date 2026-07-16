@@ -86,6 +86,14 @@ function resetAlarm() {
 }
 
 function getAlarmName() {
+  // FIX #3: Audio blobs can't be serialized to localStorage. After a restart,
+  // state.customAlarmName still holds the old filename, but customAlarmAudio
+  // is null — so the app plays the default beep while *showing* the custom name.
+  // This was silently misleading. Now we detect this mismatch and show a clear
+  // warning so the user knows they need to re-upload their alarm file.
+  if (state.customAlarmName && !customAlarmAudio) {
+    return `⚠ Re-upload: ${state.customAlarmName}`;
+  }
   return state.customAlarmName || 'Default alarm';
 }
 

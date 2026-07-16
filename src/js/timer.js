@@ -32,7 +32,13 @@ function timerComplete() {
   if (!state.isBreak) {
     // Focus session complete
     state.sessions++;
-    state.totalMinutes += getCurrentMode().work / 60;
+
+    // FIX #2: Work duration is stored in seconds (e.g. 1500 for 25 min).
+    // Dividing by 60 without rounding can produce floats like 49.9999...
+    // when floating-point precision drifts. Math.round() keeps the displayed
+    // minutes whole and accurate.
+    state.totalMinutes += Math.round(getCurrentMode().work / 60);
+
     updateEnergy();
     playAlarm();
     saveData();
@@ -52,7 +58,10 @@ function timerComplete() {
     }
   }
 
-  clearInterval(state.energyInterval);
+  // FIX #1: The original code called clearInterval(state.energyInterval) AGAIN
+  // here (after it was already cleared at the top of this function). That second
+  // call was dead code — the interval ID is already invalid at this point.
+  // Removed to avoid confusion about the control flow.
 
   // Switch between work and break
   state.isBreak = !state.isBreak;
@@ -63,13 +72,17 @@ function timerComplete() {
   updateTimerDisplay();
   updateGoalProgress();
 
-  // Auto-start breaks if enabled
+  // FIX #8: Auto-start break after focus session.
+  // Previously this used a raw setTimeout(toggleTimer, 1000) which fired
+  // unconditionally — even while the session-note modal was open. The user
+  // could be mid-sentence in their note when the break started counting down.
+  //
+  // New approach: set a flag (state.pendingAutoStart). The modal's dismiss
+  // handlers (hideNoteModal in ui.js) check this flag and only THEN start
+  // the 1-second countdown. This guarantees the break never starts until
+  // the user has dealt with the modal.
   if (state.autoStartBreaks && state.isBreak) {
-    setTimeout(() => {
-      if (!state.isRunning) {
-        toggleTimer();
-      }
-    }, 1000);
+    state.pendingAutoStart = true;
   }
 }
 

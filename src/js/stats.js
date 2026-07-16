@@ -38,10 +38,10 @@ function renderStatsChart() {
           <div class="flex-1 flex flex-col items-center gap-1">
             <div class="w-full flex gap-1 items-end h-24">
               <div class="flex-1 bg-purple-500 rounded-t transition-all" 
-                   style="height: ${Math.max(sessionHeight, 4)}%"
+                   style="height: ${sessionHeight}%"
                    title="${day.sessions} sessions"></div>
               <div class="flex-1 bg-cyan-500 rounded-t transition-all" 
-                   style="height: ${Math.max(minuteHeight, 4)}%"
+                   style="height: ${minuteHeight}%"
                    title="${day.minutes} minutes"></div>
             </div>
             <span class="text-xs ${day.isToday ? 'text-purple-400 font-bold' : 'text-slate-500'}">${day.dayName}</span>

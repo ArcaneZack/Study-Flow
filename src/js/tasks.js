@@ -4,7 +4,12 @@ function addTask(text, priority = 'medium', categoryId = 'general') {
   if (!text.trim()) return;
 
   state.tasks.push({
-    id: Date.now(),
+    // FIX #4: Date.now() produces a millisecond timestamp. Two tasks added in
+    // the same millisecond would get the same ID, causing toggleTask() and
+    // deleteTask() to match both — silently corrupting the list.
+    // crypto.randomUUID() is a browser/Node built-in that generates a random
+    // 128-bit UUID, statistically guaranteed unique. No library needed.
+    id: crypto.randomUUID(),
     text: text.trim(),
     done: false,
     priority: priority,

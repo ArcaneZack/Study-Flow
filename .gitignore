@@ -5,6 +5,12 @@ node_modules/
 dist/
 out/
 
+# Electron local cache (redirected from %AppData% to avoid Windows permission errors)
+.electron-data/
+
+# Generated Tailwind CSS (built from source via `npx tailwindcss`)
+src/tailwind.min.css
+
 # OS files
 .DS_Store
 Thumbs.db

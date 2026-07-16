@@ -3,8 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- CSP FIX: Explicitly allow fonts.googleapis.com and fonts.gstatic.com for
+       Google Fonts. Electron's renderer blocks external resources by default;
+       this policy makes the allowed origins explicit and removes the CSP console
+       errors. 'unsafe-inline' is needed for Tailwind's JIT style injections. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; connect-src 'none';">
   <title>Study Flow</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FIX: Load Inter from Google Fonts. display=swap prevents invisible text
+       during load by showing the fallback font until Inter is ready. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- PERF: Load fonts asynchronously so they don't block the first paint.
+       The page will instantly render with the system fallback font, then swap 
+       to Inter once the network request finishes. This eliminates the massive 
+       network latency bottleneck on startup. -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+  </noscript>
+  <!-- TAILWIND FIX: Use locally-built Tailwind CSS instead of the CDN script.
+       The CDN version (cdn.tailwindcss.com) is a JS-based runtime that Electron
+       blocks because it violates CSP (external script-src). The locally-built
+       CSS contains only the classes actually used in index.html, so it's smaller
+       and loads instantly with no network dependency. -->
+  <link rel="stylesheet" href="tailwind.min.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-slate-900">
@@ -345,15 +368,9 @@
     </div>
   </div>
 
-  <!-- Load all JS files -->
-  <script src="js/constants.js"></script>
-  <script src="js/state.js"></script>
-  <script src="js/timer.js"></script>
-  <script src="js/tasks.js"></script>
-  <script src="js/energy.js"></script>
-  <script src="js/settings.js"></script>
-  <script src="js/stats.js"></script>
-  <script src="js/ui.js"></script>
-  <script src="js/app.js"></script>
+  <!-- PERF: Consolidated 9 individual JS files into a single bundle to reduce
+       file read I/O operations and IPC overhead during the renderer bootup. 
+       The 'defer' attribute ensures it executes only after the HTML is parsed. -->
+  <script src="bundle.js" defer></script>
 </body>
 </html>

@@ -3,6 +3,23 @@
 // DOM Elements (populated in init)
 let elements = {};
 
+// ===== SECURITY: HTML SANITIZATION =====
+// FIX #5: User-supplied strings (task names, activity names, etc.) were
+// previously interpolated raw into innerHTML, creating an XSS vector.
+// Any text like `<img src=x onerror=alert(1)>` would execute as HTML.
+//
+// escapeHtml() works by assigning the raw string to a div's textContent
+// (which the browser stores as plain text, no parsing), then reading back
+// innerHTML (which the browser auto-escapes). This converts:
+//   < → &lt;    > → &gt;    " → &quot;    & → &amp;
+// It is safe, zero-regex, and handles all edge cases the browser knows about.
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = String(str);
+  return div.innerHTML;
+}
+
+
 function cacheElements() {
   elements = {
     timerDisplay: document.getElementById('timer-display'),
@@ -105,9 +122,13 @@ function renderEnergyButtons() {
   
   // Custom activities only
   state.customActivities.forEach(activity => {
+    // FIX #5: Escape activity.name before inserting into innerHTML to prevent XSS.
+    // FIX #4 (onclick): activity.id is now a timestamp string — wrap in single
+    // quotes so the JS parser treats it as a string argument, not an expression.
+    const safeName = escapeHtml(activity.name);
     html += `
       <button onclick="doActivity('${activity.id}')" class="rounded-lg p-2 text-xs transition-colors relative group" style="background-color: ${activity.color}30; color: ${activity.color};">
-        ${activity.name}
+        ${safeName}
         <span class="absolute -top-1 -right-1 hidden group-hover:flex bg-red-500 text-white rounded-full w-4 h-4 text-xs items-center justify-center cursor-pointer" onclick="event.stopPropagation(); deleteCustomActivity('${activity.id}')">×</span>
       </button>
     `;
@@ -130,11 +151,12 @@ function renderCustomActivitiesList() {
     return;
   }
   
+  // FIX #5: Escape activity.name before inserting into innerHTML.
   list.innerHTML = state.customActivities.map(activity => `
     <div class="flex items-center justify-between bg-slate-700 rounded-lg p-2">
       <div class="flex items-center gap-2">
         <div class="w-4 h-4 rounded" style="background-color: ${activity.color};"></div>
-        <span class="text-white text-sm">${activity.name}</span>
+        <span class="text-white text-sm">${escapeHtml(activity.name)}</span>
         <span class="text-slate-400 text-xs">+${activity.boost}%</span>
       </div>
       <button onclick="deleteCustomActivity('${activity.id}')" class="text-red-400 hover:text-red-300 text-xs">Delete</button>
@@ -156,15 +178,24 @@ function renderTasks() {
   
   elements.taskList.innerHTML = sortedTasks.map(task => {
     const category = getCategoryById(task.category);
+    // FIX #5: Escape task.text (user input) before inserting into innerHTML.
+    // A task named `<img src=x onerror=alert(1)>` would otherwise execute.
+    const safeText = escapeHtml(task.text);
+    const safeCategoryName = escapeHtml(category.name);
+
+    // FIX #4 (onclick): task.id is now a UUID string. It must be wrapped in
+    // single quotes inside the onclick attribute so JS parses it as a string
+    // argument. Without quotes, `toggleTask(550e8400-e29b-...)` is parsed as
+    // subtraction, which evaluates to NaN and never matches any task.
     return `
       <div class="flex items-center gap-2 p-2 rounded-lg ${task.done ? 'bg-slate-700/50' : 'bg-slate-700'}">
-        <button onclick="toggleTask(${task.id})" class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${task.done ? 'bg-emerald-500 border-emerald-500' : 'border-slate-500'}">
+        <button onclick="toggleTask('${task.id}')" class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${task.done ? 'bg-emerald-500 border-emerald-500' : 'border-slate-500'}">
           ${task.done ? '<svg class="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>' : ''}
         </button>
         <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: ${PRIORITY_COLORS[task.priority]};"></span>
-        <span class="px-1.5 py-0.5 rounded text-xs flex-shrink-0" style="background: ${category.color}20; color: ${category.color};">${category.name}</span>
-        <span class="flex-1 text-xs ${task.done ? 'text-slate-500 line-through' : 'text-white'}">${task.text}</span>
-        <button onclick="deleteTask(${task.id})" class="p-1 hover:bg-slate-600 rounded flex-shrink-0">
+        <span class="px-1.5 py-0.5 rounded text-xs flex-shrink-0" style="background: ${category.color}20; color: ${category.color};">${safeCategoryName}</span>
+        <span class="flex-1 text-xs ${task.done ? 'text-slate-500 line-through' : 'text-white'}">${safeText}</span>
+        <button onclick="deleteTask('${task.id}')" class="p-1 hover:bg-slate-600 rounded flex-shrink-0">
           <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
         </button>
       </div>
@@ -199,6 +230,20 @@ function showNoteModal() {
 function hideNoteModal() {
   if (!elements.noteModal) return;
   elements.noteModal.classList.add('hidden');
+
+  // FIX #8 (modal side): Check if a break auto-start is pending.
+  // timerComplete() sets state.pendingAutoStart instead of firing a raw
+  // setTimeout, so the break countdown only begins HERE — after the user
+  // has explicitly dismissed the modal. Without this, the break would
+  // start while the user is still typing their session note.
+  if (state.pendingAutoStart) {
+    state.pendingAutoStart = false;
+    setTimeout(() => {
+      if (!state.isRunning) {
+        toggleTimer();
+      }
+    }, 1000);
+  }
 }
 
 // ===== PAGE NAVIGATION =====

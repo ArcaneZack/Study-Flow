@@ -1,7 +1,12 @@
 /* ===== BASE STYLES ===== */
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
-body { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; }
+
+/* FIX A: Replace system-ui with Inter — a modern screen typeface with
+   consistent cross-platform rendering and tabular numerals (great for the
+   timer display). 'Inter' falls back to system-ui so the app still renders
+   correctly if the font fails to load. */
+body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #0f172a; }
 
 #app { height: 100vh; display: flex; flex-direction: column; }
 
@@ -23,6 +28,15 @@ body { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; }
   width: clamp(120px, 25vh, 200px);
   height: clamp(120px, 25vh, 200px);
   transform: rotate(-90deg);
+  /* PERF: The progress ring's stroke-dashoffset changes every tick.
+     will-change promotes this element to its own GPU compositor layer
+     so stroke updates don't trigger a full-page repaint. */
+  will-change: transform;
+}
+
+/* PERF: The ring stroke itself animates — hint the compositor. */
+#progress-ring {
+  will-change: stroke-dashoffset, stroke;
 }
 
 .timer-text {
@@ -159,4 +173,11 @@ input[type="range"]::-moz-range-thumb {
 
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* PERF: Energy bar and goal bar change width frequently via JS.
+   Promote them to compositor layers to avoid layout recalculation. */
+#energy-bar,
+#goal-progress {
+  will-change: width;
 }

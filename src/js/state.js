@@ -36,7 +36,12 @@ const state = {
   customAlarmName: '',
 
   // UI
-  currentPage: 'home'
+  currentPage: 'home',
+
+  // FIX #8: Flag set by timerComplete() when autoStartBreaks is on.
+  // Instead of firing a raw setTimeout that races with the note modal,
+  // we set this flag and let hideNoteModal() check it after dismissal.
+  pendingAutoStart: false
 };
 
 // ===== STORAGE FUNCTIONS =====
@@ -87,6 +92,11 @@ function loadData() {
     state.sessions = 0;
     state.totalMinutes = 0;
     state.sessionNotes = [];
+
+    // FIX #7: Energy was never reset at midnight. A user who hit burnout (0%)
+    // would start the next day still showing 0% with no recovery path.
+    // Resetting to 100 on a new calendar day mirrors what sessions/minutes do.
+    state.energy = 100;
   } else {
     // Same day - restore stats
     state.sessions = data.sessions || 0;

@@ -3,33 +3,44 @@
 function initApp() {
   // Cache DOM elements
   cacheElements();
-  
-  // Load saved data
+
+  // Load saved data from localStorage
   loadData();
-  
-  // Update custom mode label
+
+  // Update custom mode label with saved times
   DEFAULT_MODES.custom.label = `Custom (${state.customWorkTime}/${state.customBreakTime})`;
-  
-  // Setup event listeners
+
+  // ── CRITICAL PATH ────────────────────────────────────────────────────────
+  // These run synchronously on DOMContentLoaded and determine what the user
+  // sees on first paint. Keep this list as short as possible.
+  applyTheme();           // body class must be set before paint or you get a flash
+  updateTimerDisplay();   // timer face is the focal point — must be correct immediately
+  updateStartButton();    // button state depends on isRunning
+  updateModeSelectOptions(); // dropdown needs options before user can interact
+  showRandomQuote();      // visible in header, render early
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // Setup event listeners (no DOM mutations, just bindings — fast)
   setupEventListeners();
-  
-  // Request notification permission
+
+  // Request notification permission (async, no UI impact)
   if (Notification.permission === 'default') {
     Notification.requestPermission();
   }
-  
-  // Initial UI render
-  updateModeSelectOptions();
-  renderCategoryOptions();
-  updateTimerDisplay();
-  updateStartButton();
-  updateEnergyDisplay();
-  updateGoalProgress();
-  renderTasks();
-  applyTheme();
-  updateSettingsUI();
-  showRandomQuote();
-  renderEnergyButtons();
+
+  // ── DEFERRED PATH ────────────────────────────────────────────────────────
+  // These are below-the-fold or non-visible on first paint. Scheduling them
+  // with requestIdleCallback lets the browser finish the critical render first,
+  // then fills in the rest during idle time — eliminating startup stutter.
+  requestIdleCallback(() => {
+    renderCategoryOptions(); // populates task category dropdown
+    updateEnergyDisplay();   // energy bar in right column
+    updateGoalProgress();    // progress bar below timer
+    renderTasks();           // task list (can be long)
+    updateSettingsUI();      // settings page (hidden on load)
+    renderEnergyButtons();   // custom activity buttons
+  });
+  // ─────────────────────────────────────────────────────────────────────────
 }
 
 function setupEventListeners() {
