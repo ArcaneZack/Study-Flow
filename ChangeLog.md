@@ -5,6 +5,25 @@ All notable changes to Study Flow will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-07-16
+
+### Added
+- **Performance Optimizations**: 
+  - Added `v8-compile-cache` to significantly reduce main process startup time
+  - Asynchronous font loading to prevent render-blocking network requests
+  - Bundled JS files to reduce IPC overhead on bootup
+  - Added CSS `will-change` GPU compositing hints to timer and progress bars for smoother animation
+- **Vector App Icon**: Completely redesigned the app icon using a programmatic SVG renderer for true transparency and flawless vector edges
+
+### Changed
+- Refactored `initApp` to defer non-critical UI rendering via `requestIdleCallback`, prioritizing first paint speed
+- Updated window initialization to show the dark background instantly instead of hanging on `ready-to-show`
+- Replaced CDN-based Tailwind runtime with a locally bundled CSS file for security and offline support
+
+### Fixed
+- **Content Security Policy (CSP)**: Eliminated unsafe external script loading errors
+- **Chromium Cache Errors**: Fixed persistent terminal pollution (`cache_util_win.cc Access is denied`) by redirecting `userData` away from roaming profiles, eagerly wiping stale caches, and explicitly disabling Chromium HTTP/GPU caches
+
 ## [1.2.0] - 2025-11-21
 
 ### Added
@@ -315,6 +334,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Key Features |
 |---------|------|-------------|
+| 1.2.1 | 2026-07-16 | Startup performance optimizations, cache error fixes, vector app icon, CSP enforcement |
 | 1.2.0 | 2025-11-21 | Custom energy activities with colors, toggle defaults |
 | 1.1.5 | 2025-11-21 | Custom timer lengths |
 | 1.1.4 | 2025-11-21 | Auto-start breaks |
@@ -335,6 +355,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Upgrade Notes
+
+### From 1.2.0 to 1.2.1
+- The app now operates with a strict Content Security Policy (CSP) and relies on a locally bundled Tailwind CSS file instead of the CDN.
+- Startup time is vastly improved due to JS bundling, async fonts, and V8 bytecode caching.
+- Chromium HTTP/GPU disk caching is entirely disabled to prevent file locking bugs on Windows.
+- No breaking changes or data migrations required.
 
 ### From 1.1.5 to 1.2.0
 - Custom energy activities can now have colors via color picker
