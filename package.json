@@ -16,12 +16,13 @@
   "build": {
     "appId": "com.studyflow.app",
     "productName": "Study Flow",
+    "compression": "maximum",
     "directories": {
       "buildResources": "build"
     },
     "win": {
       "target": "nsis",
-      "icon": "build/icon.ico"
+      "icon": "build/icon.png"
     },
     "mac": {
       "target": "dmg",
